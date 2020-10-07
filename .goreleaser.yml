@@ -1,0 +1,33 @@
+project_name: tailscale-appindicator
+
+builds:
+  - goos:
+      - linux
+    goarch:
+      - amd64
+    ldflags:
+      - -s -w -X github.com/felicianotech/tailscale-appindicator.version={{ .Version }}
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    files:
+      - LICENSE
+      - README.md
+      - tailscale-icon.svg
+
+nfpms:
+  - file_name_template: "{{ .ProjectName }}-v{{ .Version }}-{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    homepage: "https://www.Feliciano.Tech"
+    maintainer: "Ricardo N Feliciano <Ricardo@Feliciano.Tech>"
+    description: "A Tailscale VPN utility."
+    license: MIT
+    formats:
+      - deb
+    dependencies:
+      - tailscale
+    files:
+      "tailscale-icon.svg": "/usr/share/icons/hicolor/scalable/apps/tailscale-icon.svg"
+
+checksum:
+  name_template: "{{ .ProjectName }}-v{{ .Version }}-checksums.txt"
