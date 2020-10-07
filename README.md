@@ -19,8 +19,8 @@ You can then double-click the file to install.
 Via terminal, you can do the following:
 
 ```bash
-wget https://github.com/felicianotech/tailscale-appindicator/releases/download/v0.1.0/tailscale-appindicator_v0.1.0_amd64.deb
-sudo dpkg -i tailscale-appindicator_v0.1.0_amd64.deb
+wget https://github.com/felicianotech/tailscale-appindicator/releases/download/v0.1.0/tailscale-appindicator-v0.1.0-amd64.deb
+sudo dpkg -i tailscale-appindicator-v0.1.0-amd64.deb
 ```
 
 `0.1.0` and `amd64` may need to be replaced with your desired version and CPU architecture respectively.
@@ -34,6 +34,11 @@ You can start the AppIndicator by running the following:
 tailscale-appindicator& && disown
 ```
 
+
+## Updates
+
+For now, you'll have to manually update by downloading new .debs and installing.
+Watch this repo's releases to stay informed or just check back frequently.
 
 ## License
 
