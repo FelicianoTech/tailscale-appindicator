@@ -1,0 +1,11 @@
+[Unit]
+Description=Tailscale AppIndicator
+After=default.target
+
+[Service]
+ExecStart=/usr/local/bin/tailscale-appindicator
+Restart=on-failure
+SyslogIdentifier=tailscale-appindicator
+
+[Install]
+WantedBy=multi-user.target
