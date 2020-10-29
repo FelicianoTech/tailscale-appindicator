@@ -13,7 +13,7 @@ This AppIndicator makes it easy to see your computer's Tailscale IP address, con
 
 Download the `.deb` file to the desired system.
 
-Via your browser. you can download it from the [GitHub Releases page][gh-releases].
+Via your browser you can download it from the [GitHub Releases page][gh-releases].
 You can then double-click the file to install.
 
 Via terminal, you can do the following:
@@ -28,10 +28,16 @@ sudo dpkg -i tailscale-appindicator-v0.1.0-amd64.deb
 
 ## Starting
 
-You can start the AppIndicator by running the following:
+You can start the Tailscale AppIndicator by running the following:
 
 ```bash
-tailscale-appindicator& && disown
+systemctl --user start tailscale-appindicator
+```
+
+and keep it running between reboots:
+
+```bash
+systemctl --user enable tailscale-appindicator
 ```
 
 

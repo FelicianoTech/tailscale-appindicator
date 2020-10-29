@@ -28,6 +28,7 @@ nfpms:
       - tailscale
     files:
       "tailscale-icon.svg": "/usr/share/icons/hicolor/scalable/apps/tailscale-icon.svg"
+      "tailscale-appindicator.service": "/etc/systemd/user/tailscale-appindicator.service"
 
 checksum:
   name_template: "{{ .ProjectName }}-v{{ .Version }}-checksums.txt"
