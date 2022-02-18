@@ -76,7 +76,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = itemAdmin.Connect("activate", func() {
+	_ = itemAdmin.Connect("activate", func() {
 		exec.Command("xdg-open", "https://login.tailscale.com/admin/machines").Start()
 	})
 	if err != nil {
@@ -87,7 +87,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = itemDocs.Connect("activate", func() {
+	_ = itemDocs.Connect("activate", func() {
 		exec.Command("xdg-open", "https://tailscale.com/kb/").Start()
 	})
 	if err != nil {
@@ -103,7 +103,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = itemExit.Connect("activate", func() {
+	_ = itemExit.Connect("activate", func() {
 		gtk.MainQuit()
 	})
 	if err != nil {
