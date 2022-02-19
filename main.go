@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/dawidd6/go-appindicator"
+	"github.com/gopherlibs/appindicator/appindicator"
 	"github.com/gotk3/gotk3/gtk"
 )
 
@@ -76,7 +76,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = itemAdmin.Connect("activate", func() {
+	_ = itemAdmin.Connect("activate", func() {
 		exec.Command("xdg-open", "https://login.tailscale.com/admin/machines").Start()
 	})
 	if err != nil {
@@ -87,7 +87,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = itemDocs.Connect("activate", func() {
+	_ = itemDocs.Connect("activate", func() {
 		exec.Command("xdg-open", "https://tailscale.com/kb/").Start()
 	})
 	if err != nil {
@@ -103,7 +103,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = itemExit.Connect("activate", func() {
+	_ = itemExit.Connect("activate", func() {
 		gtk.MainQuit()
 	})
 	if err != nil {
