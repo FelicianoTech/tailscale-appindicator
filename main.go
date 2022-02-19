@@ -16,7 +16,7 @@ import (
 // rights but this will be running as root anyway
 func connectionWorks() bool {
 
-	cmd := exec.Command("ping", "-c", "3", "100.101.102.103")
+	cmd := exec.Command("tailscale", "status")
 	cmd.Start()
 	err := cmd.Wait()
 
