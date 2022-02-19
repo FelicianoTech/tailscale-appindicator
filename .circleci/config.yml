@@ -1,10 +1,23 @@
 version: 2.1
 
+orbs:
+  gor: hubci/goreleaser@1.0
+
 workflows:
   main:
     jobs:
       - test
-      - build-binaries
+      - gor/release:
+          version: "1.5.0"
+          go-version: "1.17.7"
+          dry-run: true
+          pre-steps:
+            - run: sudo apt-get update && sudo apt-get install -y libappindicator3-dev libgtk-3-dev
+          post-steps:
+            - persist_to_workspace:
+                root: "."
+                paths:
+                  - "dist"
   release:
     jobs:
       - test:
@@ -14,15 +27,33 @@ workflows:
             tags:
               # Simplified SemVer regex
               only: /^v\d+\.\d+\.\d+$/
-      - build-binaries:
+      - gor/release:
+          version: "1.5.0"
+          go-version: "1.17.7"
           filters:
             branches:
               ignore: /.*/
             tags:
               # Simplified SemVer regex
               only: /^v\d+\.\d+\.\d+$/
-          publish: true
+          pre-steps:
+            - run: sudo apt-get update && sudo apt-get install -y libappindicator3-dev libgtk-3-dev
+          post-steps:
+            - persist_to_workspace:
+                root: "."
+                paths:
+                  - "dist"
           context: main
+      - deb-publish:
+          requires:
+            - gor/release
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              # Simplified SemVer regex
+              only: /^v\d+\.\d+\.\d+$/
+
 
 jobs:
   test:
@@ -48,34 +79,33 @@ jobs:
           key: go-mod-v1
           paths:
             - "/go/pkg/mod"
-  build-binaries:
-    parameters:
-      publish:
-        type: boolean
-        default: false
+  deb-publish:
     docker:
-      - image: cimg/go:1.17.7
+      - image: cimg/base:current
     steps:
-      - checkout
-      - run:
-          name: "Install GoReleaser"
-          command: |
-            curl -sSL "https://github.com/goreleaser/goreleaser/releases/download/v1.5.0/goreleaser_Linux_x86_64.tar.gz" | sudo tar -xz -C /usr/local/bin goreleaser
-            goreleaser --version
-      - run:
-          name: "Download Dependancies"
-          command: |
-            go mod download
-            sudo apt-get update && sudo apt-get install -y libappindicator3-dev libgtk-3-dev
-      - unless:
-          condition: << parameters.publish >>
-          steps:
-            - run:
-                name: "Build Binaries with GoReleaser"
-                command: goreleaser --snapshot --skip-publish --rm-dist
-      - when:
-          condition: << parameters.publish >>
-          steps:
-            - run:
-                name: "Build Binaries & Publish with GoReleaser"
-                command: goreleaser
+      - attach_workspace:
+          at: .
+      - add_ssh_keys
+      - run: |
+          echo 'pkg.atl.revidian.net ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBE16slz1okRPeUhxIpzBCn9rHqjk51ylxEYlYXvblswcxOQ0rPyAX6N8Bd2pnsh99xce/jaX2KJHPLPCc+zAXTg= root@li361-16' >> ~/.ssh/known_hosts
+      - run: |
+          ssh pkg@pkg.atl.revidian.net "mkdir ~/incoming/tailscale-appindicator-${CIRCLE_TAG}"
+          scp ./dist/*.deb pkg@pkg.atl.revidian.net:incoming/tailscale-appindicator-${CIRCLE_TAG}/
+
+          # Ubuntu 20.04 Focal
+          ssh pkg@pkg.atl.revidian.net "aptly repo add ftech-ubuntu-focal ~/incoming/tailscale-appindicator-${CIRCLE_TAG}/"
+          ssh pkg@pkg.atl.revidian.net "aptly snapshot create ftech-ubuntu-focal--tailscale-appindicator-${CIRCLE_TAG} from repo ftech-ubuntu-focal"
+          ssh pkg@pkg.atl.revidian.net "aptly publish switch focal filesystem:ftech:/ubuntu ftech-ubuntu-focal--tailscale-appindicator-${CIRCLE_TAG}"
+
+
+          # Ubuntu 21.10 Impish
+          ssh pkg@pkg.atl.revidian.net "aptly repo add ftech-ubuntu-impish ~/incoming/tailscale-appindicator-${CIRCLE_TAG}/"
+          ssh pkg@pkg.atl.revidian.net "aptly snapshot create ftech-ubuntu-impish--tailscale-appindicator-${CIRCLE_TAG} from repo ftech-ubuntu-impish"
+          ssh pkg@pkg.atl.revidian.net "aptly publish switch impish filesystem:ftech:/ubuntu ftech-ubuntu-impish--tailscale-appindicator-${CIRCLE_TAG}"
+
+          # Ubuntu 22.04 Jammy
+          ssh pkg@pkg.atl.revidian.net "aptly repo add ftech-ubuntu-jammy ~/incoming/tailscale-appindicator-${CIRCLE_TAG}/"
+          ssh pkg@pkg.atl.revidian.net "aptly snapshot create ftech-ubuntu-jammy--tailscale-appindicator-${CIRCLE_TAG} from repo ftech-ubuntu-jammy"
+          ssh pkg@pkg.atl.revidian.net "aptly publish switch jammy filesystem:ftech:/ubuntu ftech-ubuntu-jammy--tailscale-appindicator-${CIRCLE_TAG}"
+
+          ssh pkg@pkg.atl.revidian.net "rm -r ~/incoming/tailscale-appindicator-${CIRCLE_TAG}"
